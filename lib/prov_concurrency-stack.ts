@@ -130,6 +130,16 @@ export class ProvConcurrencyStack extends cdk.Stack {
       }),
     });
 
+    const table2 = new dynamodb.Table(this, id, {
+      billingMode: dynamodb.BillingMode.PROVISIONED,
+      readCapacity: 1,
+      writeCapacity: 1,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "createdAt", type: dynamodb.AttributeType.NUMBER },
+      pointInTimeRecovery: false,
+    });
+
 
 
     // Order process function
@@ -138,7 +148,20 @@ export class ProvConcurrencyStack extends cdk.Stack {
       handler: 'app.handler',
       timeout: cdk.Duration.seconds(10),
       code: lambda.Code.fromAsset(path.join(__dirname, '../backend/process_function')),
+      environment: {
+        "DYNAMODB_TABLE": table2.tableName,
+        "QUEUE_URL": my_queue.queueUrl,
+      },
     });
+
+    orderProcessFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions:[ "sqs:DeleteMessage"],
+        resources: [my_queue.queueArn],
+      })
+    );
+    table2.grantWriteData(orderProcessFunction)
 
     orderProcessFunction.addEventSource(new SqsEventSource(my_queue,{
       batchSize:2,
