@@ -11,9 +11,23 @@ import * as apigateway from "@aws-cdk/aws-apigateway";
 import * as apigateway2 from "@aws-cdk/aws-apigatewayv2";
 import * as path from "path";
 
+
 export class ProvConcurrencyStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+
+    const table = new dynamodb.Table(this, id, {
+      billingMode: dynamodb.BillingMode.PROVISIONED,
+      readCapacity: 1,
+      writeCapacity: 0.5,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      partitionKey: {name: 'id', type: dynamodb.AttributeType.STRING},
+      sortKey: {name: 'createdAt', type: dynamodb.AttributeType.NUMBER},
+      pointInTimeRecovery: false,
+    });
+
+
 
     // The code that defines your stack goes here test
 
@@ -24,6 +38,9 @@ export class ProvConcurrencyStack extends cdk.Stack {
         code: lambda.DockerImageCode.fromImageAsset(
           path.join(__dirname, "../api/LegacyOrderPost/src/LegacyOrderPost")
         ),
+        environment:{
+          "DYNAMODB_TABLE" :  table.tableName
+        }
       }
     );
 
@@ -51,6 +68,6 @@ export class ProvConcurrencyStack extends cdk.Stack {
       "POST",
       new apigateway.LambdaIntegration(legacyorderFunction, { proxy: true })
     );
-    
+
   }
 }
