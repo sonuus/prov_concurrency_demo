@@ -1,29 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
-using Amazon.Lambda.Core;
+using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
 using Newtonsoft.Json;
+using Amazon.Lambda.Core;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(
 typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 
-namespace OrderModule
+namespace LegacyOrderPost
 {
-    public class LegacyFunction
+    public class Function
     {
-        ITimeProcessor processor = new TimeProcessor();
-
-        public APIGatewayProxyResponse Get(APIGatewayProxyRequest request, ILambdaContext context)
-        {
-            var result = processor.CurrentTimeUTC();
-            Console.WriteLine("------------------ Inside C# lambda -----------------------");
-            Console.WriteLine(request);
-            
-            return CreateResponse(result);
-        }
-
         APIGatewayProxyResponse CreateResponse(DateTime? result)
         {
             int statusCode = (result != null) ?
@@ -48,5 +39,19 @@ namespace OrderModule
 
             return response;
         }
+        
+     public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            ITimeProcessor processor = new TimeProcessor();
+            var result = processor.CurrentTimeUTC();
+            Console.WriteLine("------------------ Inside C# lambda -----------------------");
+            
+            Console.WriteLine("request =" + request);
+            Console.WriteLine("result= " + result);
+            return CreateResponse(result);
+        }
+        
+        
+        
     }
 }

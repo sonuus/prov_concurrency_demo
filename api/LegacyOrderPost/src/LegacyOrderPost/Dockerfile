@@ -13,4 +13,4 @@ RUN dotnet publish -c Release -o /app/publish
 FROM base AS final
 WORKDIR /var/task
 COPY --from=build /app/publish .
-CMD ["OrderModule::OrderModule.LegacyOrder::FunctionHandler"]
+CMD ["LegacyOrderPost::LegacyOrderPost.Function::FunctionHandler"]

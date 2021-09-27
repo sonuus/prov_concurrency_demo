@@ -15,7 +15,7 @@ export class ProvConcurrencyStack extends cdk.Stack {
     // The code that defines your stack goes here test
 
     new lambda.DockerImageFunction(this, "legacyFunction", {
-      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, "../api/legacy_function")),
+      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, "../api/LegacyOrderPost/src/LegacyOrderPost")),
     });
   }
 }

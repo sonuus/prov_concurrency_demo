@@ -7,10 +7,10 @@
   ],
   "profile": "",
   "region": "us-west-1",
+  "configuration": "Release",
   "package-type": "image",
-  "function-name": "FunctionHandler",
-  "function-role": "",
   "function-memory-size": 256,
   "function-timeout": 30,
-  "image-command": "OrderModule::OrderModule.LegacyOrder::FunctionHandler"
+  "image-command": "LegacyOrderPost::LegacyOrderPost.Function::FunctionHandler",
+  "docker-host-build-output-dir": "./bin/Release/net5.0/linux-x64/publish"
 }

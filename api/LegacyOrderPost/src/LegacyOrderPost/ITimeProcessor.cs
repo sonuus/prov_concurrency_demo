@@ -1,6 +1,5 @@
 using System;
-using OrderModule;
-namespace OrderModule
+namespace LegacyOrderPost
 {
     public interface ITimeProcessor
     {
