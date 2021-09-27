@@ -56,7 +56,7 @@ export class ProvConcurrencyStack extends cdk.Stack {
           "Authorization",
           "X-Api-Key",
         ],
-        allowMethods: ["OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"],
+        allowMethods: ["OPTIONS", "GET", "POST"],
         allowCredentials: true,
         allowOrigins: ["*"],
       },
