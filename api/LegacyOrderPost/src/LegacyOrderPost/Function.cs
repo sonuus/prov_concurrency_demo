@@ -51,7 +51,7 @@ namespace LegacyOrderPost
             //Initialize DynamoDb client
             var config = new DynamoDBContextConfig { Conversion = DynamoDBEntryConversion.V2 };
             this.DDBContext = new DynamoDBContext(new AmazonDynamoDBClient(), config);
-            var tableName = System.Environment.GetEnvironmentVariable();
+            var tableName = System.Environment.GetEnvironmentVariable("DYNAMODB_TABLE");
             if(!string.IsNullOrEmpty(tableName))
             {
                 AWSConfigsDynamoDB.Context.TypeMappings[typeof(FoodOrder)] = new Amazon.Util.TypeMapping(typeof(FoodOrder));
