@@ -9,9 +9,10 @@ namespace LegacyOrderPost
     public class FoodOrder
     {
         [DynamoDBHashKey]
-        public string Id { get; set; }
+        public string id { get; set; }
         public string Name { get; set; }
         public string Quantity { get; set; }
-        public DateTime CreatedTimestamp { get; set; }
+        public long createdAt { get; set; }
+        public string RandomData { get; set; }
     }
 }

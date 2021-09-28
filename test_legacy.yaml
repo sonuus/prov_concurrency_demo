@@ -1,0 +1,18 @@
+config:
+  target: 'https://w4yfc37q4l.execute-api.us-west-1.amazonaws.com/dev'
+  phases:
+    - duration: 10
+      arrivalRate: 40
+  processor: "test_legacy.js"
+  defaults:
+    headers:
+    #   Authorization: 'Bearer <<ENTER YOUR JWT TOKEN HERE>>'
+scenarios:
+  - flow:
+    - function: "generateRandomData"
+    - post:
+        url: "/Orders"
+        json:
+          Quantity: "{{ Quantity }}"
+          Name: "{{ Name }}"
+    - log: "Sent POST request to / with {{ Name }}"

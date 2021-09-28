@@ -43,6 +43,12 @@ export class ProvConcurrencyStack extends cdk.Stack {
         }
       }
     );
+    legacyorderFunction.addToRolePolicy(new iam.PolicyStatement({
+       effect:iam.Effect.ALLOW,
+       actions:["dynamodb:DescribeTable"],
+      resources:[table.tableArn],
+    }))
+    table.grantWriteData(legacyorderFunction);
 
     const api = new apigateway.RestApi(this, "api", {
       description: "Food orders api gateway",

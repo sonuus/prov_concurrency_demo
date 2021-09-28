@@ -1,1 +1,4 @@
-curl https://w4yfc37q4l.execute-api.us-west-1.amazonaws.com/dev/Orders --data '{ "text":"happy" }'
+curl https://w4yfc37q4l.execute-api.us-west-1.amazonaws.com/dev/Orders --data '{"Name":"Tikka Masala","Quantity": "2" }'
+
+
+artillery run ./test_legacy.yaml
