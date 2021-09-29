@@ -57,6 +57,7 @@ export class ProvConcurrencyStack extends cdk.Stack {
         environment: {
           DYNAMODB_TABLE: table.tableName,
         },
+        timeout: cdk.Duration.seconds(29)
       }
     );
     legacyorderFunction.addToRolePolicy(
@@ -80,7 +81,7 @@ export class ProvConcurrencyStack extends cdk.Stack {
       visibilityTimeout: cdk.Duration.seconds(20)
     })
 
-    const httpApi = new HttpApi(this, 'http-api-example', {
+    const httpApi = new HttpApi(this, 'http-order-api', {
       description: 'HTTP API to process orders',
       corsPreflight: {
         allowHeaders: [
@@ -94,7 +95,6 @@ export class ProvConcurrencyStack extends cdk.Stack {
           CorsHttpMethod.GET,
           CorsHttpMethod.POST        
         ],
-        allowCredentials: true,
         allowOrigins: ['*'],
       },
     });
@@ -107,8 +107,9 @@ export class ProvConcurrencyStack extends cdk.Stack {
           path.join(__dirname, "../api/NewOrderPost/src/NewOrderPost")
         ),
         environment: {
-          "QUEUE_NAME": my_queue.queueName,
+          "QUEUE_URL": my_queue.queueUrl,
         },
+        timeout: cdk.Duration.seconds(29)
       }
     );
 
@@ -123,7 +124,7 @@ export class ProvConcurrencyStack extends cdk.Stack {
 
     httpApi.addRoutes({
       path: '/Orders2',
-      methods: [HttpMethod.GET],
+      methods: [HttpMethod.POST],
       integration: new LambdaProxyIntegration({
         handler: newOrderFunction,
       }),
@@ -134,7 +135,7 @@ export class ProvConcurrencyStack extends cdk.Stack {
     // Order process function
     const orderProcessFunction = new lambda.Function(this, 'orderProcessFunction', {
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: 'app.hander',
+      handler: 'app.handler',
       timeout: cdk.Duration.seconds(10),
       code: lambda.Code.fromAsset(path.join(__dirname, '../backend/process_function')),
     });

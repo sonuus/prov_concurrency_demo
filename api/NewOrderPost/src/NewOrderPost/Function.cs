@@ -7,6 +7,7 @@ using Amazon.Lambda.APIGatewayEvents;
 using Newtonsoft.Json;
 using Amazon.Lambda.Core;
 using Amazon.SQS;
+using System.Text;
 
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -19,16 +20,16 @@ namespace LegacyOrderPost
     {   
         
         ITimeProcessor processor = new TimeProcessor();
-        private static AmazonSQSClient sqs = new AmazonSQSClient();
-        var result = processor.CurrentTimeUTC();
-        var queueName = System.Environment.GetEnvironmentVariable("QUEUE_NAME");
+        AmazonSQSClient sqs = new AmazonSQSClient();
+        // DateTime result = processor.CurrentTimeUTC();
+        private string queueURL = System.Environment.GetEnvironmentVariable("QUEUE_URL");
         
         public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
         {
             Console.WriteLine("------Start ------------ FunctionHandler -----------------------");
             Console.WriteLine("request =" + request);           
-            string SQSResponse = await AddFoodOrderAsync(request, context) ;            
-            return CreateResponse(dynamoDBResponse);
+            string sqsResponse = await AddFoodOrderAsync(request, context) ;            
+            return CreateResponse(sqsResponse);
             
             
         }
@@ -37,12 +38,16 @@ namespace LegacyOrderPost
         {      
             Console.WriteLine("------Start ------------ AddFoodOrderAsync -----------------------");
             try{
-            var Order = request?.Body;
-            await sqs.SendMessageAsync<FoodOrder>(Order);
+                string messageBodyBase64 = request?.Body;
+                byte[] data = Convert.FromBase64String(messageBodyBase64);
+                string decodedString = Encoding.UTF8.GetString(data);
+                Console.WriteLine("request =" + decodedString);
+                await sqs.SendMessageAsync(queueURL, decodedString);
             
             Console.WriteLine("------End ------------ AddFoodOrderAsync -----------------------");
             }catch(Exception e){
-                console.WriteLine(e);
+                Console.WriteLine(e);
+                return "";
             }
             return "Success";
         }
@@ -62,13 +67,13 @@ namespace LegacyOrderPost
                 (int)HttpStatusCode.OK :
                 (int)HttpStatusCode.InternalServerError;
 
-            string body = (result != null) ?
-                JsonConvert.SerializeObject(result) : string.Empty;
+            // string body = (result != null) ?
+            //     JsonConvert.SerializeObject(result) : string.Empty;
 
             var response = new APIGatewayProxyResponse
             {
                 StatusCode = statusCode,
-                Body = body,
+                Body = result,
                 Headers = new Dictionary<string, string>
                 {
                     { "Content-Type", "application/json" },
