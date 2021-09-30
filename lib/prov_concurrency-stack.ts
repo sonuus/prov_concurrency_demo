@@ -10,6 +10,7 @@ import {
 import * as apigateway from "@aws-cdk/aws-apigateway";
 import {CorsHttpMethod, HttpApi, HttpMethod, HttpRouteIntegrationConfig} from '@aws-cdk/aws-apigatewayv2';
 import {LambdaProxyIntegration} from '@aws-cdk/aws-apigatewayv2-integrations';
+import * as autoscalling from '@aws-cdk/aws-autoscaling'
 
 import * as path from "path";
 
@@ -130,6 +131,22 @@ export class ProvConcurrencyStack extends cdk.Stack {
       }),
     });
 
+    const newOrderFunctionAlias = new lambda.Alias(this,'newOrderFunctionAlias',{
+      aliasName:'live',
+      provisionedConcurrentExecutions: 2,
+      version: newOrderFunction.currentVersion 
+    })
+
+    const autoScalling = newOrderFunctionAlias.addAutoScaling({
+      minCapacity: 2,
+      maxCapacity:7
+    })
+
+    autoScalling.scaleOnUtilization({
+      utilizationTarget:0.2
+    })
+
+
     const table2 = new dynamodb.Table(this, `provisionedTable`, {
       billingMode: dynamodb.BillingMode.PROVISIONED,
       readCapacity: 1,
@@ -152,6 +169,7 @@ export class ProvConcurrencyStack extends cdk.Stack {
         "DYNAMODB_TABLE": table2.tableName,
         "QUEUE_URL": my_queue.queueUrl,
       },
+      reservedConcurrentExecutions: 1
     });
 
     orderProcessFunction.addToRolePolicy(
