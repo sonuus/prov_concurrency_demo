@@ -130,7 +130,7 @@ export class ProvConcurrencyStack extends cdk.Stack {
       }),
     });
 
-    const table2 = new dynamodb.Table(this, id, {
+    const table2 = new dynamodb.Table(this, `provisionedTable`, {
       billingMode: dynamodb.BillingMode.PROVISIONED,
       readCapacity: 1,
       writeCapacity: 1,

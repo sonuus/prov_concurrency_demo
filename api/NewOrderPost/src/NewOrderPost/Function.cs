@@ -41,8 +41,14 @@ namespace LegacyOrderPost
                 string messageBodyBase64 = request?.Body;
                 byte[] data = Convert.FromBase64String(messageBodyBase64);
                 string decodedString = Encoding.UTF8.GetString(data);
-                Console.WriteLine("request =" + decodedString);
-                await sqs.SendMessageAsync(queueURL, decodedString);
+                
+                var Order = JsonConvert.DeserializeObject<FoodOrder>(decodedString);
+                Order.id = Guid.NewGuid().ToString();
+                Order.createdAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                Order.RandomData = GetStringBlob();
+                string messageString =  JsonConvert.SerializeObject(Order);
+                Console.WriteLine("request =" + messageString );
+                await sqs.SendMessageAsync(queueURL, messageString);
             
             Console.WriteLine("------End ------------ AddFoodOrderAsync -----------------------");
             }catch(Exception e){
